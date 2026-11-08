@@ -1,0 +1,137 @@
+# liblouis: Türkçe Braille temel karakter ve noktalama tanımları
+# (Guven Keyboard — MEB Türkçe Braille Yazım Rehberi 1991 esas alınmıştır)
+#
+# Bu dosya, İngilizce UEB include zincirinden bağımsız, minimal ve
+# denetlenebilir bir Türkçe temel sağlar. Faz 1 kapsamı:
+#   - Türkçe normal metin yazma
+#   - Sayı yazma
+#   - Temel noktalama
+#   - Günlük yazı sembolleri (@, /, %)
+#
+# Faz dışı (sonraki fazlarda değerlendirilecek):
+#   - Para birimi (€ ve £ kaldırıldı, tek hücre 4 @ ile çakışıyordu; ₺, ¥ vb. kapsam dışı), yön, müzik, IPA
+#   - Latin Extended aksanlı karakterler (â, é, ñ vb.)
+#
+# DİKKAT — Kasıtlı olarak EKLENMEYEN kurallar:
+#   - space \x2800 0  (Unicode Braille Pattern Blank — back-translation'da ⠀ sızmasını önler)
+#   - en-ueb-* include'ları  (UEB ≠ MEB Türkçe Braille; karakter çakışması yaratıyordu)
+#   - braille-patterns.cti  (Unicode 2800-28FF; kullanıcı asla yazmayacak)
+#   - en-ueb-math.ctb       (PUA U+F32x-F50x sızma riski)
+#   - UEB emphasis/transnote/script/grade-switching kuralları
+
+# ── 1. Boşluk ve güvenli kontrol karakterleri ─────────────────
+space \s 0           SPACE (U+0020)
+space \x00a0 0       NO-BREAK SPACE
+space \x0009 0       TAB
+space \x000a 0       LINE FEED
+space \x000d 0       CARRIAGE RETURN
+space \x200b 0       ZERO WIDTH SPACE
+
+# ── 2. Latin temel harfler (a-z + base uppercase) ──────────────
+# Bu include 26 lowercase + 26 base uppercase getirir.
+# Tek başına yetersiz: capsletter/capsword kuralları aşağıda tanımlanır.
+include latinLetterDef6Dots.uti
+
+# ── 3. Türkçe özel harfler (MEB rehberi) ──────────────────────
+lowercase \x00e7 16         LATIN SMALL LETTER C WITH CEDILLA (ç)
+lowercase \x011f 126        LATIN SMALL LETTER G WITH BREVE (ğ)
+lowercase \x0131 35         LATIN SMALL LETTER DOTLESS I (ı)
+lowercase \x00f6 246        LATIN SMALL LETTER O WITH DIAERESIS (ö)
+lowercase \x015f 146        LATIN SMALL LETTER S WITH CEDILLA (ş)
+lowercase \x00fc 1256       LATIN SMALL LETTER U WITH DIAERESIS (ü)
+
+# Büyük/küçük eşleştirmeleri
+base uppercase \x00c7 \x00e7    Çç
+base uppercase \x011e \x011f    Ğğ
+base uppercase \x00d6 \x00f6    Öö
+base uppercase \x015e \x015f    Şş
+base uppercase \x00dc \x00fc    Üü
+
+# Türkçe'ye özel "noktalı/noktasız i" kuralı:
+#   Latin'de büyük I'nın küçüğü i'dir; Türkçe'de I'nın küçüğü ı, İ'nin küçüğü i.
+# latinLetterDef6Dots.uti satır 61 "base uppercase I i" tanımını override ediyoruz.
+base uppercase I \x0131         I → ı
+base uppercase \x0130 i         İ → i
+
+# ── 4. Büyük harf işareti (MEB) ────────────────────────────────
+capsletter 6
+begcapsword 6-6
+endcapsword 6-3
+
+# ── 5. Sayılar ─────────────────────────────────────────────────
+# litdigits6Dots.uti standart 6-noktalı rakam tanımları (1-0 = 1, 12, 14, …, 245)
+include litdigits6Dots.uti
+numsign 3456
+nonumsign 56
+
+# ── 6. Temel noktalama (MEB) ───────────────────────────────────
+punctuation . 256
+punctuation , 2
+punctuation ; 23
+punctuation : 25
+punctuation ! 235
+prepunc     " 236
+postpunc    ? 236
+punctuation ? 236
+punctuation ' 3
+punctuation " 356
+punctuation - 36
+hyphen - 36
+prepunc     ( 2356
+postpunc    ) 2356
+punctuation ) 2356
+punctuation [ 12356
+punctuation ] 23456
+punctuation < 3-246
+punctuation > 3-135
+punctuation { 2467
+punctuation } 1357
+
+# ── 7. Akıllı tırnak / uzun tire / üç nokta ────────────────────
+punctuation \x2018 3              LEFT SINGLE QUOTATION MARK (')
+punctuation \x2019 3              RIGHT SINGLE QUOTATION MARK (')
+punctuation \x2026 256-256-256    ELLIPSIS (…)
+punctuation \x2013 36             EN DASH (–)
+punctuation \x2014 36             EM DASH (—)
+punctuation \x201c 236            LEFT DOUBLE QUOTATION MARK (")
+punctuation \x201d 356            RIGHT DOUBLE QUOTATION MARK (")
+
+# ── 8. Günlük yazı sembolleri ─────────────────────────────────
+sign @ 4                          # tek hücre 4'ün tek sahibi @ (Madde 80)
+sign # 3456-6
+sign / 34
+# NOT: `sign % 13456` KASITEN YOK. 13456 = `lowercase y` (Türkçe "y" harfi);
+# tek-hücre `%` kuralı `y` ile çakışıyordu. `%` için sözleşme: çoklu hücre
+# `456-1456`. Bu kural Liblouis seviyesinde tanımlı; bypass (SPECIAL_SYMBOLS
+# 1456→%) öncelikli çalışsa da, ileride bypass kaldırılırsa tablo devralır.
+sign % 456-1456
+sign _ 456                        LOW LINE (alt çizgi) — G2 ile hizalı, bypass tek
+                                  # hücre commit'inde min-2 koşulundan dolayı
+                                  # devreye girmez; doğrudan bu kural çalışır.
+
+# ── 9. Matematik sembolleri (MEB 56-prefix) ────────────────────
+# G1 kullanıcısı matematik işaretleri için 56-önekini kullanır (G2 ile tutarlı).
+# Şu an MATH_SYMBOLS bypass (BrailleTranslator.kt) aynı sonucu veriyor.
+# Patch 2'de bypass G2-only yapıldığında G1 bu kurallardan çalışacak.
+sign + 56-26                      artı
+sign \x2212 56-36                 − eksi işareti (Unicode minus — not hyphen)
+sign \x00D7 56-236                × çarpma (Unicode multiplication — not asterisk)
+sign \x00F7 56-25                 ÷ bölme (Unicode division)
+sign = 56-2356                    eşittir
+sign * 56-35                      * yıldız / asterisk
+sign \x2022 56-3                  • bullet / skaler çarpım (56-prefix: 3 tek başına = kesme işareti)
+sign \x00B1 56-26-36              ± artı-eksi
+
+# ── 10. Özel semboller (G1 doğrudan — G2'de 456-prefix bypass gerekli) ──
+# G1'de kısaltma çakışması yok; single-cell veya belirgin multi-cell kurallar doğrudan çalışır.
+# G2'de aynı hücreler kısaltmalar tarafından gölgeleniyor (di, bir, se, la, ma vb.).
+# G2 SPECIAL_SYMBOLS bypass (456-prefix) değiştirilmedi — sadece G1 tablo tamamlandı.
+sign & 12346                      & ve işareti    (G2: always di 12346 gölgeler)
+sign $ 2346                       $ dolar         (G2: always bir 2346 gölgeler)
+sign \x00A2 345                   ¢ sent          (G2: always se 345 gölgeler)
+sign \x221E 123456                ∞ sonsuz        (G2: always la 123456 gölgeler)
+sign ^ 5                          ^ şapka/caret   (G2: fiil kısaltma önek)
+sign ~ 45                         ~ tilde
+# € kaldırıldı (OPEN_WORK 359): 4-15, @ (tek hücre 4) ardından yazılan e ile birleşip "€" oluyordu.
+# £ (sterlin) kaldırıldı — tek hücre 4 artık yalnız @ üretiyor (Madde 80).
+sign \\ 456-16                    \ backslash (Madde 80 kararı; G2 ile tutarlı, tek sahip)

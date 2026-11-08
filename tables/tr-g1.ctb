@@ -1,0 +1,60 @@
+#tr#1#Turkish Uncontracted#tr#Turkish
+#
+# liblouis: Türkçe Kısaltmasız Braille (Guven Keyboard mimarisi)
+#
+#  Copyright (C) 2014, Greg Kearney, gkearney@gmail.com
+#  Copyright (C) 2014-2016 Arend Arends <arendarends@ziggo.nl>
+#  Copyright (C) 2023-2025 Oğuz Uğur <oguzugur2834@gmail.com>
+#  Copyright (C) 2024 Attila Hammer from IT Foundation for the Visually Impaired - Hungary
+#  Copyright (C) 2025 Ozancan Karataş <ozancankaratas96@outlook.com>
+#  Copyright (C) 2026 Guven Keyboard Project — UEB zincirinden bağımsız refaktör
+#
+#  Changed for Güven Braille Klavye (from Liblouis 3.35.0): Turkish letters,
+#  digits and punctuation come from tr-guven-base.cti instead of the English
+#  UEB include chain (see the note below). Changes recorded on 13 May,
+#  6 June and 21 July 2026.
+#
+#  This file is part of liblouis.
+#
+#  liblouis is free software: you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as
+#  published by the Free Software Foundation, either version 2.1 of the
+#  License, or (at your option) any later version.
+#
+#  liblouis is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with liblouis. If not, see
+#  <http://www.gnu.org/licenses/>.
+
+#-index-name: Turkish, uncontracted
+#-display-name: Turkish uncontracted braille
+#
+#+language: tr
+#+type: literary
+#+contraction: no
+#+grade: 1
+#+dots: 6
+
+# ──────────────────────────────────────────────────────────────
+# REFAKTÖR NOTU (Guven Keyboard, 2026):
+#
+# Bu dosya eskiden `include en-ueb-g1.ctb` ile İngilizce UEB tablosunu
+# komple include ediyordu. Bu include zinciri:
+#   - Türkçe karakter tanımlarını UEB notasyonuyla çakıştırıyordu
+#     (ör. ğ → 126 [MEB] vs ğ → 4-346-1245 [UEB])
+#   - spaces.uti üzerinden `space \x2800 0` getirip back-translation'da
+#     ⠀ (BRAILLE PATTERN BLANK) sızmasına yol açıyordu
+#   - UEB matematik/emphasis/transnote/PUA kurallarını gereksiz yere
+#     yüklüyordu (yaklaşık 1700 satır etkili kural)
+#
+# Yeni mimari: minimal MEB tabanlı temel dosya tek noktadan include
+# edilir. UEB zinciri tamamen kaldırılmıştır.
+# ──────────────────────────────────────────────────────────────
+
+include tr-guven-base.cti
+punctuation / 34
+midendnumericmodechars .,:/-
